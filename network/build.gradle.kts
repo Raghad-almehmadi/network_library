@@ -1,9 +1,9 @@
 import java.util.Properties
-import kotlin.apply
 
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    id("maven-publish")
 }
 
 android {
@@ -12,35 +12,22 @@ android {
 
     defaultConfig {
         minSdk = 24
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        val envFile = rootProject.file(".env")
-        val props =
-            Properties().apply {
-                if (envFile.exists()) {
-                    envFile.inputStream().use { this.load(it) }
-                }
-            }
-        val baseUrl = props.getProperty("BASE_URL") ?: error("Missing BASE_URL in .env")
-        val wsBaseUrl = props.getProperty("WS_BASE_URL") ?: error("Missing WS_BASE_URL in .env")
-        val supaKey = props.getProperty("SUPABASE_KEY") ?: error("Missing SUPABASE_KEY in .env")
+
+        val props = Properties().apply {
+            val envFile = rootProject.file(".env")
+            if (envFile.exists()) envFile.inputStream().use { load(it) }
+        }
+        val baseUrl  = props.getProperty("BASE_URL")     ?: (System.getenv("BASE_URL") ?: "https://example.com/")
+        val wsBase   = props.getProperty("WS_BASE_URL")  ?: (System.getenv("WS_BASE_URL") ?: "wss://example.com/")
+        val supaKey  = props.getProperty("SUPABASE_KEY") ?: (System.getenv("SUPABASE_KEY") ?: "")
 
         buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
-        buildConfigField("String", "WS_BASE_URL", "\"$wsBaseUrl\"")
+        buildConfigField("String", "WS_BASE_URL", "\"$wsBase\"")
         buildConfigField("String", "SUPABASE_KEY", "\"$supaKey\"")
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
-        }
-    }
-    buildFeatures { buildConfig = true }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -51,12 +38,18 @@ android {
         }
     }
 
+    buildFeatures { buildConfig = true }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlinOptions { jvmTarget = "11" }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
 }
 
@@ -73,4 +66,18 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+
+group = (findProperty("group") as String?) ?: "com.github.Raghad-almehmadi"
+version = (findProperty("version") as String?) ?: "1.0.0"
+
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            afterEvaluate { from(components["release"]) }
+            groupId = project.group.toString()
+            artifactId = "network"
+            version = project.version.toString()
+        }
+    }
 }
