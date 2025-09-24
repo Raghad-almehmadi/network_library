@@ -52,7 +52,7 @@ class LogoutManager(
             runCatching { socket?.disconnect() }
                 .onSuccess { Log.i(TAG, "Socket disconnected") }
                 .onFailure { Log.w(TAG, "Socket disconnect failed", it) }
-            tokenStore.clear()
+           tokenStore.clear()
             Log.i(TAG, "Token store cleared")
 
             Log.i(TAG, "Logout finished")

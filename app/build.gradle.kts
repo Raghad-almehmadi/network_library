@@ -141,14 +141,8 @@ dependencies {
 
     // Navigation
     implementation(libs.androidx.navigation.compose)
-    // Retrofit
-    implementation(libs.retrofit)
     // Gson Converter
     implementation(libs.converter.gson)
-    // OkHttp
-    implementation(libs.okhttp)
-    // OkHttp Logging Interceptor
-    implementation(libs.logging.interceptor)
     // Lifecycle ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     // Icons
@@ -191,7 +185,7 @@ dependencies {
     // Koin
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
-    implementation("com.github.Raghad-almehmadi:network_module:4b149109fe")
+    implementation(project(":network"))
 
 }
 

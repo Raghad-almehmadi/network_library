@@ -17,7 +17,6 @@ class OrdersSocketBridge(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var listenerStarted = false
 
-    // نفس الاسم الذي كان يستخدمه الريبو
     val orders: StateFlow<List<com.ntg.lmd.mainscreen.data.model.Order>> = store.state
 
     fun connect(channel: String) = socket.connect(channel)
@@ -36,6 +35,6 @@ class OrdersSocketBridge(
 
     fun updateOrderStatus(orderId: String, status: String) {
         val payload = mapOf("order_id" to orderId, "status" to status)
-        socket.send(event = "UPDATE", payload = payload) // يستخدم send العامة في SocketIntegration
+        socket.send(event = "UPDATE", payload = payload)
     }
 }
